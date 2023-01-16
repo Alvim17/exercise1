@@ -27,17 +27,17 @@ run
 First, the program will read the .csv file input, located at:
 
 ```shell
-exercise1/data/exercise1/input
+./data/exercise1/input
 ```
 
 After processing, the output will be saved in .csv and .parquet files.
 
 .csv file output:
 ```shell
-exercise1/data/exercise1/output/csv
+./data/exercise1/output/csv
 ```
 
 .parquet file output:
 ```shell
-exercise1/data/exercise1/output/parquet
+./data/exercise1/output/parquet
 ```
