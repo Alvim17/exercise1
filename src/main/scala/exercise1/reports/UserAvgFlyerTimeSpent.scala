@@ -19,14 +19,14 @@ object UserAvgFlyerTimeSpent extends App {
 
   override def pipeline(): Unit = {
 
-    //reading csv input
+    // reading .csv input
     val df_initial = spark.read
       .option("header", "true")
       .csv("data/exercise1/input")
       .distinct()
       .withColumn("timestamp", col("timestamp").cast(TimestampType))
 
-    //ordering each user's events by timestamp
+    // ordering each user's events by timestamp
     val df_ordered = df_initial
       .withColumn("rank", dense_rank().over(
         Window.partitionBy("user_id").orderBy("timestamp")
@@ -43,7 +43,6 @@ object UserAvgFlyerTimeSpent extends App {
       )
       .select(
         col("a.*"),
-        col("b.timestamp"),
         (col("b.timestamp").cast(LongType) - col("a.timestamp").cast(LongType))
           .as("time_spent")
       )
@@ -51,7 +50,7 @@ object UserAvgFlyerTimeSpent extends App {
       .filter(col("time_spent") <= user_timeout_limit)
       .filter(col("event").isin("flyer_open", "item_open", "favorite"))
 
-    //aggregating the daily time spent (in seconds) on each flyer per user
+    // aggregating the daily time spent (in seconds) on each flyer per user
     val df_final = df_time_spent
       .groupBy(
         col("a.timestamp").cast(DateType).as("date"),
@@ -59,17 +58,15 @@ object UserAvgFlyerTimeSpent extends App {
         col("flyer_id"),
         col("user_id")
       )
-      .agg(
-        sum("time_spent").as("time_spent_seconds")
-      )
+      .agg(sum("time_spent").as("time_spent_seconds"))
 
-    //writing output in csv format
+    // writing output in .csv format
     df_final.write
       .option("header", "true")
       .mode(SaveMode.Overwrite)
       .csv("data/exercise1/output/csv")
 
-    //writing output in parquet format
+    // writing output in .parquet format
     df_final.write
       .mode(SaveMode.Overwrite)
       .parquet("data/exercise1/output/parquet")
